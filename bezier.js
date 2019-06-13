@@ -1,7 +1,7 @@
 //Comando define se é pra remover(0), adicionar(1) ou Escolher(2) e 
 var comando = -1;
 var raioCirculo = 10;
-var tr = 0.5;
+var tr = 100;
 var cor = 'blue';
 var p_curvas = [];
 var arr_curvas = [];
@@ -12,19 +12,37 @@ function guardarPontos(){
 }
 
 function construirCurvas(){
-	var x = acharPonto(pontosAtuais,tr,0);
-	
+	var coordenadas = [];
+	var qtdePontos = 1/tr;
+	var x = acharPonto(pontosAtuais,0,0);
+	for(let k = 0; k <= tr; k++){
+		t = k*qtdePontos;
+		var op = acharPonto(pontosAtuais,t,0);
+		coordenadas.push(op);
+	}
+	//
+	desenharBezier(coordenadas);
 }
 
-function desenharBezier(p){
-	console.log(p + "oi");
-	p.addTo(stage);
+function desenharBezier(coordenadas){
+	var coord = coordenadas[0];
+	var cord;
+	for(let k = 1; k < coordenadas.length; k++){
+		cord = coordenadas[k];
+		var pontoCurva = new Path().moveTo(coord.x,coord.y).lineTo(cord.x,cord.y).stroke("pink",2).addTo(stage);
+		coord = cord;
+	}
 }
 
 function acharPonto(conj,t,qtdeRec){
 	if(conj.length === 1){
-		var p = new Point(conj[0].x,conj[0].y);
-		desenharBezier(p);
+		var p = 0;
+		if(qtdeRec != 0){
+			p = new Point(conj[0].x,conj[0].y);
+		}else{
+			p = new Point(conj[0].closePath()._attributes.x,conj[0].closePath()._attributes.y);
+		}
+		return p;
 	}else{
 		var newPoints = [];
 		for(let i=0; i<conj.length-1; i++){
@@ -40,7 +58,7 @@ function acharPonto(conj,t,qtdeRec){
 			var ponto = new Point(pointTempx,pointTempy);
 			newPoints.push(ponto);
 		}
-		acharPonto(newPoints,t,1);
+		return acharPonto(newPoints,t,1);
 	}
 }
 
