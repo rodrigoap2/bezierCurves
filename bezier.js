@@ -3,12 +3,50 @@ var comando = -1;
 var raioCirculo = 10;
 var tr = 100;
 var cor = 'blue';
+var posicaoAtual = -1;
 var p_curvas = [];
 var arr_curvas = [];
 var pontosAtuais = [];
 var allPoints = [];
+function colocarPontosAtuais(){
+}
+//primeiro faazer pros pontos atuais depois pra todos
+function mostrarCurvas(){
+	var index = -1;
+	var arr = [];
+	pontosAtuais.forEach(a => arr.push(a));
+	guardarPontos();
+	allPoints.forEach(function(conj){
+		var l = true;
+		for(let i = 0; i < conj.length; i++){
+			if(conj[i] != pontosAtuais[i]){
+				l = false;
+			}
+			arr.push(conj[i]);
+		}
+		//console.log(conj.length);
+		if(l && conj.length > 0){
+			console.log("entrou " + allPoints.length);
+			if(allPoints.length > 1){
+				var index = allPoints.indexOf(conj);
+				console.log(allPoints);
+				arr_curvas[index] = p_curvas;
+				console.log(arr_curvas);
+			}else{
+				console.log(arr_curvas);
+				arr_curvas[0] = p_curvas;
+			}
+		}else if(conj.length == 0 && arr_curvas.length == 0){
+			//console.log("aaa");
+			arr_curvas.push(p_curvas);
+		}
+	});
+	arr_curvas.forEach(a => a.forEach(b => arr.push(b)));
+	stage.children(arr);
+}
+
 function guardarPontos(){
-	allPoints.push(pontosAtuais);
+	allPoints[posicaoAtual] = pontosAtuais;
 }
 
 function construirCurvas(){
@@ -27,11 +65,14 @@ function construirCurvas(){
 function desenharBezier(coordenadas){
 	var coord = coordenadas[0];
 	var cord;
+	p_curvas = [];
 	for(let k = 1; k < coordenadas.length; k++){
 		cord = coordenadas[k];
-		var pontoCurva = new Path().moveTo(coord.x,coord.y).lineTo(cord.x,cord.y).stroke("pink",2).addTo(stage);
+		var pontoCurva = new Path().moveTo(coord.x,coord.y).lineTo(cord.x,cord.y).stroke("red",2);
+		p_curvas.push(pontoCurva);
 		coord = cord;
 	}
+	mostrarCurvas();
 }
 
 function acharPonto(conj,t,qtdeRec){
@@ -96,15 +137,17 @@ stage.on('message:deletarCurva', function(){
 stage.on('click', function(point){
 	if(comando === 1){
 		guardarPontos();
+		posicaoAtual = posicaoAtual + 1;
 		pontosAtuais = [];
-		var p = new Circle(point.x, point.y, raioCirculo).fill(cor).addTo(stage);
+		var opp = new Circle(0.000001, 0.000001, 0.000001).fill('white').addTo(stage);
+		var p = new Circle(point.x, point.y, raioCirculo).fill(cor);
    		pontosAtuais.push(p);
    		comando = 3;
 	}else if(comando === 0){
 		guardarPontos();
 		deletarPonto(point.x,point.y);
 	}else if(comando === 3){
-		var p = new Circle(point.x, point.y, raioCirculo).fill(cor).addTo(stage);
+		var p = new Circle(point.x, point.y, raioCirculo).fill(cor);
    		pontosAtuais.push(p);
 	}
 	if(pontosAtuais.length > 0){
